@@ -3,14 +3,12 @@ package main
 import (
 	"context"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/cucumber/godog"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var terraformOptions *terraform.Options
@@ -24,20 +22,14 @@ func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 		Vars:         map[string]interface{}{"cidr": cidr},
 	}
 	terraform.InitAndApply(testT, terraformOptions)
+	var err error
 	vpcID = terraform.Output(testT, terraformOptions, "vpc_id")
+	if err != nil {
+		return err
+	}
 
-	raw, err := terraform.RunTerraformCommandAndGetOutputE(
-		testT,
-		terraformOptions,
-		"output",
-		"-no-color",
-		"-raw",
-		"vpc_id",
-	)
-	require.NoError(testT, err)
-	vpcID = strings.TrimSpace(raw)
-
-	return nil
+	vpcCidr = terraform.Output(testT, terraformOptions, "cidr_block")
+	return err
 }
 
 func theVPCShouldExist() error {
