@@ -42,15 +42,15 @@ func itsCIDRBlockShouldBe(expected string) error {
 }
 
 func FeatureContext(ctx *godog.ScenarioContext) {
-	ctx.Step(`^Given I deploy the VPC Terraform module with CIDR "([^"']*)"$`, iDeployTheVPCTerraformModuleWithCIDR)
-	ctx.Step(`^Then the VPC should exist$`, theVPCShouldExist)
-	ctx.Step(`^And its CIDR block should be "([^"']*)"$`, itsCIDRBlockShouldBe)
-    ctx.After(func(c context.Context, s *godog.Scenario, err error) (context.Context, error) {
-        // Only destroy if we actually ran InitAndApply
-        if terraformOptions != nil {
-            terraform.Destroy(testT, terraformOptions)
-            terraformOptions = nil
-        }
-        return c, err
-    })
+	ctx.Step(`^I deploy the VPC Terraform module with CIDR "([^"']*)"$`, iDeployTheVPCTerraformModuleWithCIDR)
+	ctx.Step(`^the VPC should exist$`, theVPCShouldExist)
+	ctx.Step(`^its CIDR block should be "([^"']*)"$`, itsCIDRBlockShouldBe)
+	ctx.After(func(c context.Context, s *godog.Scenario, err error) (context.Context, error) {
+		// Only destroy if we actually ran InitAndApply
+		if terraformOptions != nil {
+			terraform.Destroy(testT, terraformOptions)
+			terraformOptions = nil
+		}
+		return c, err
+	})
 }
