@@ -1,0 +1,9 @@
+# Terraform files
+.vscode/
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+
+# Go files
+go.sum
