@@ -16,6 +16,17 @@ var vpcID string
 var vpcCidr string
 var testT *testing.T
 
+func cleanTFOutput(raw string) string {
+	var last string
+	for _, line := range strings.Split(raw, "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			last = line
+		}
+	}
+	return strings.Trim(last, "\"")
+}
+
 func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 	terraformOptions = &terraform.Options{
 		TerraformDir: "terraform/vpc",
@@ -30,13 +41,13 @@ func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 		testT, terraformOptions,
 		"output", "-no-color", "vpc_id",
 	)
-	vpcID = strings.Trim(rawID, "\" \n")
+	vpcID = cleanTFOutput(rawID)
 
 	rawCidr, _ := terraform.RunTerraformCommandAndGetStdoutE(
 		testT, terraformOptions,
 		"output", "-no-color", "vpc_cidr",
 	)
-	vpcCidr = strings.Trim(rawCidr, "\" \n")
+	vpcCidr = cleanTFOutput(rawCidr)
 
 	return nil
 }
@@ -61,5 +72,4 @@ func FeatureContext(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I deploy the VPC Terraform module with CIDR "([^"']*)"$`, iDeployTheVPCTerraformModuleWithCIDR)
 	ctx.Step(`^the VPC should exist$`, theVPCShouldExist)
 	ctx.Step(`^its CIDR block should be "([^"']*)"$`, itsCIDRBlockShouldBe)
-
 }
