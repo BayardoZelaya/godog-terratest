@@ -17,14 +17,18 @@ var vpcCidr string
 var testT *testing.T
 
 func cleanTFOutput(raw string) string {
-	var last string
-	for _, line := range strings.Split(raw, "\n") {
-		line = strings.TrimSpace(line)
-		if line != "" {
-			last = line
-		}
-	}
-	return strings.Trim(last, "\"")
+    for _, line := range strings.Split(raw, "\n") {
+        line = strings.TrimSpace(line)
+        // skip blank or debug lines
+        if line == "" || strings.HasPrefix(line, "::debug::") || strings.HasPrefix(line, "[command]") {
+            continue
+        }
+        // pick the first quoted value
+        if strings.HasPrefix(line, `"`) && strings.HasSuffix(line, `"`) {
+            return strings.Trim(line, `"`)
+        }
+    }
+    return ""
 }
 
 func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
