@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/cucumber/godog"
@@ -26,8 +27,17 @@ func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 	// vpcID = terraform.Output(testT, terraformOptions, "vpc_id")
 	// vpcCidr = terraform.Output(testT, terraformOptions, "vpc_cidr")
 
-    vpcID   = terraform.Output(testT, terraformOptions, "vpc_id")
-    vpcCidr = terraform.Output(testT, terraformOptions, "vpc_cidr")
+	rawID, _ := terraform.RunTerraformCommandAndGetStdoutE(
+		testT, terraformOptions,
+		"output", "-no-color", "vpc_id",
+	)
+	vpcID = strings.Trim(rawID, "\" \n")
+
+	rawCidr, _ := terraform.RunTerraformCommandAndGetStdoutE(
+		testT, terraformOptions,
+		"output", "-no-color", "vpc_cidr",
+	)
+	vpcCidr = strings.Trim(rawCidr, "\" \n")
 
 	return nil
 }
