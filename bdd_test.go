@@ -7,10 +7,19 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
+	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
 func TestFeatures(t *testing.T) {
 	testT = t
+
+	defer func() {
+		if terraformOptions != nil {
+			terraform.Destroy(testT, terraformOptions)
+			terraformOptions = nil
+		}
+	}()
+
 	suite := godog.TestSuite{
 		Name:                "go-bdd",
 		ScenarioInitializer: FeatureContext,
