@@ -4,3 +4,4 @@ resource "aws_vpc" "this" {
     Name = var.name
   }
 }
+

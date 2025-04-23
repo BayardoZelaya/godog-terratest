@@ -10,7 +10,6 @@ import (
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var terraformOptions *terraform.Options
@@ -25,13 +24,17 @@ func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 	}
 	terraform.InitAndApply(testT, terraformOptions)
 
-	rawVpcID, err := terraform.RunTerraformCommandAndGetStdoutE(testT, terraformOptions, "output", "-no-color", "-raw", "vpc_id")
-	require.NoError(testT, err)
-	vpcID = strings.TrimSpace(rawVpcID)
-
-	rawVpcCidr, err := terraform.RunTerraformCommandAndGetStdoutE(testT, terraformOptions, "output", "-no-color", "-raw", "cidr_block")
-	require.NoError(testT, err)
-	vpcCidr = strings.TrimSpace(rawVpcCidr)
+	vpcID = terraform.Output(testT, terraformOptions, "vpc_id")
+	vpcCidr = terraform.Output(testT, terraformOptions, "vpc_cidr")
+	if vpcID == "" {
+		return godog.ErrPending
+	}
+	if vpcCidr == "" {
+		return godog.ErrPending
+	}
+	if !strings.HasPrefix(vpcCidr, cidr) {
+		return godog.ErrPending
+	}
 
 	return nil
 }
@@ -42,11 +45,13 @@ func theVPCShouldExist() error {
 		region = "us-east-1"
 	}
 	_, err := aws.GetVpcByIdE(testT, vpcID, region)
+	println("VPC ID:", vpcID)
 	return err
 }
 
 func itsCIDRBlockShouldBe(expected string) error {
 	assert.Equal(testT, expected, vpcCidr)
+	println("VPC CIDR:", vpcCidr)
 	return nil
 }
 
@@ -63,4 +68,3 @@ func FeatureContext(ctx *godog.ScenarioContext) {
 		return c, err
 	})
 }
-

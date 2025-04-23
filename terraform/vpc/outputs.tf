@@ -1,7 +1,9 @@
 output "vpc_id" {
-  value = aws_vpc.this.id
+  description = "ID of the VPC"
+  value       = aws_vpc.this.id
 }
 
-output "cidr_block" {
-  value = aws_vpc.this.cidr_block
+output "vpc_cidr" {
+  description = "CIDR block of the VPC"
+  value       = aws_vpc.this.cidr_block
 }
