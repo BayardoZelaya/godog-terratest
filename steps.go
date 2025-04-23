@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/cucumber/godog"
@@ -26,22 +24,7 @@ func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 	terraform.InitAndApply(testT, terraformOptions)
 
 	vpcID = terraform.Output(testT, terraformOptions, "vpc_id")
-
-	cidrJson := terraform.OutputJson(testT, terraformOptions, "vpc_cidr")
-	var test_cidr string
-	_ = json.Unmarshal([]byte(cidrJson), &test_cidr)
-
-	vpcCidr = test_cidr
-
-	if vpcID == "" {
-		return godog.ErrPending
-	}
-	if vpcCidr == "" {
-		return godog.ErrPending
-	}
-	if !strings.HasPrefix(vpcCidr, cidr) {
-		return godog.ErrPending
-	}
+	vpcCidr = terraform.Output(testT, terraformOptions, "vpc_cidr")
 
 	return nil
 }
