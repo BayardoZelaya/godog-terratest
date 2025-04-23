@@ -23,8 +23,12 @@ func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 	}
 	terraform.InitAndApply(testT, terraformOptions)
 
-	vpcID = terraform.Output(testT, terraformOptions, "vpc_id")
-	vpcCidr = terraform.Output(testT, terraformOptions, "vpc_cidr")
+	// vpcID = terraform.Output(testT, terraformOptions, "vpc_id")
+	// vpcCidr = terraform.Output(testT, terraformOptions, "vpc_cidr")
+
+	allOutputs := terraform.OutputAll(testT, terraformOptions)
+	vpcID = allOutputs["vpc_id"].(string)
+	vpcCidr = allOutputs["vpc_cidr"].(string)
 
 	return nil
 }
