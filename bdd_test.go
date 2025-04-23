@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/cucumber/godog"
-	"github.com/cucumber/godog/colors"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
@@ -27,7 +26,7 @@ func TestFeatures(t *testing.T) {
 			Format:    "pretty",
 			Paths:     []string{"features"},
 			Randomize: time.Now().UTC().UnixNano(),
-			Output:    colors.Colored(os.Stdout),
+			Output:    os.Stdout,
 		},
 	}
 	if suite.Run() != 0 {
