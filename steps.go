@@ -16,20 +16,6 @@ var vpcID string
 var vpcCidr string
 var testT *testing.T
 
-func cleanTFOutput(raw string) string {
-    for _, line := range strings.Split(raw, "\n") {
-        line = strings.TrimSpace(line)
-        // skip blank or debug lines
-        if line == "" || strings.HasPrefix(line, "::debug::") || strings.HasPrefix(line, "[command]") {
-            continue
-        }
-        // pick the first quoted value
-        if strings.HasPrefix(line, `"`) && strings.HasSuffix(line, `"`) {
-            return strings.Trim(line, `"`)
-        }
-    }
-    return ""
-}
 
 func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 	terraformOptions = &terraform.Options{
@@ -38,20 +24,8 @@ func iDeployTheVPCTerraformModuleWithCIDR(cidr string) error {
 	}
 	terraform.InitAndApply(testT, terraformOptions)
 
-	// vpcID = terraform.Output(testT, terraformOptions, "vpc_id")
-	// vpcCidr = terraform.Output(testT, terraformOptions, "vpc_cidr")
-
-	rawID, _ := terraform.RunTerraformCommandAndGetStdoutE(
-		testT, terraformOptions,
-		"output", "-no-color", "vpc_id",
-	)
-	vpcID = cleanTFOutput(rawID)
-
-	rawCidr, _ := terraform.RunTerraformCommandAndGetStdoutE(
-		testT, terraformOptions,
-		"output", "-no-color", "vpc_cidr",
-	)
-	vpcCidr = cleanTFOutput(rawCidr)
+	vpcID = terraform.Output(testT, terraformOptions, "vpc_id")
+	vpcCidr = terraform.Output(testT, terraformOptions, "vpc_cidr")
 
 	return nil
 }
